@@ -1,0 +1,17 @@
+#include<os2.h>
+
+ICON 100 dho.ico
+
+MENU 100
+BEGIN
+   SUBMENU "~File", 101
+      BEGIN
+         MENUITEM "Change Colors", 102
+         MENUITEM "", 5, MIS_SEPARATOR         
+         MENUITEM  "E~xit", 103
+      END
+   SUBMENU "~Help", 201
+      BEGIN
+         MENUITEM "Product Information", 104
+      END
+END

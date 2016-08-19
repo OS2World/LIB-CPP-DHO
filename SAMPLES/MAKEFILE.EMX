@@ -1,0 +1,134 @@
+##########################################
+#    Developer Helper Object Set                                 #
+#  (C) 1994-95 Thomas E. Bednarz, Jr.                         #
+#     All rights reserved                                          #
+##########################################
+
+
+# $Id: makefile 1.7 1995/08/27 08:37:30 teb Exp teb $
+
+RM = del
+DHODIR = \DHO
+
+# uncomment the next 2 lines for the IBM CSet++
+# compiler2
+####################################################
+#CC=icc
+# uncomment the next 2 lines for a debug build
+#DEBUG=/Ti+ -DDEBUG
+#DBG=d
+#CFLAGS=/C+ /Q+ /Ti+ /Fi+ /I $(DHODIR)\include /Tp
+#EXECFLAGS=/Q+ /Ti+
+#AR=lib
+#SUFFIX=icc
+#JOIN=+
+#OUT= /Fe
+
+# uncomment the next 2 lines for the GCC/2
+#  compiler
+#####################################################
+#CC=gcc
+# uncomment the next 2 lines for a debug build
+#DEBUG=-DDEBUG
+#DBG=d
+#CFLAGS=$(DEBUG) -c -I $(DHODIR)\include
+#EXECFLAGS= -I $(DHODIR)\include
+#AR=glib
+#JOIN=-a 
+#OUT=-o
+
+# uncomment the next 2 lines for the EMX
+# compiler
+#####################################################
+CC=gcc 
+# uncomment the next 2 lines for a debug build
+DEBUG=-DDEBUG
+DBG=d
+CFLAGS=$(DEBUG) -c -I $(DHODIR)\include -Zomf
+EXECFLAGS= -I $(DHODIR)\include -Zomf
+AR=emxomfar q
+JOIN=
+OUT=-o
+
+LIBS=$(DHODIR)\lib\dho$(SUFFIX)$(DBG).lib
+
+ALL: simple.exe lboxtest.exe wintest.exe vsettest.exe vset2.exe threadex.exe nbktest.exe conttest.exe
+
+clean:
+	del *.obj
+	del *.exe
+	del *.res
+
+threadex.exe : threadex.obj
+	$(CC) $(EXECFLAGS) $(EXECFLAGS) $*.obj $(LIBS) $(OUT) $*.exe
+
+clean:
+	-del *.res
+	-del *.obj
+	-del *.exe
+
+.SUFFIXES: .cc .obj .rc .res .exe .zip
+
+# inference rules
+#########################
+.zip.cc:
+	unzip $<
+
+.cc.obj:
+	$(CC) $(CFLAGS) $<
+
+
+.rc.res:
+	RC -r $<
+
+.obj.exe:
+	$(CC) $(EXECFLAGS) $(EXECFLAGS) $*.obj $(LIBS) $*.def $(OUT) $*.exe
+	rc $*.res
+
+
+nbktest.exe : nbktest.obj nbktest.res
+nbktest.obj : nbktest.cc nbktest.h
+nbktest.res : nbktest.rc
+simple.exe : simple.obj simple.res
+simple.res : simple.rc
+simple.obj : simple.cc simple.h
+vsettest.exe : vsettest.obj vsettest.res
+vsettest.obj : vsettest.cc
+vsettest.res : vsettest.rc 
+conttest.exe : conttest.obj conttest.res
+conttest.obj : conttest.cc conttest.h
+conttest.res : conttest.rc
+wintest.exe : wintest.obj wintest.res
+wintest.obj : wintest.cc
+wintest.res : wintest.rc
+lboxtest.exe : lboxtest.obj lboxtest.res
+lboxtest.obj : lboxtest.cc lboxtest.h
+lboxtest.res : lboxtest.rc
+threadex.exe : threadex.obj
+threadex.obj : threadex.cc 
+vset2.exe : vset2.obj vset2.res
+vset2.obj : vset2.cc
+vset2.res : vset2.rc
+prgtest.exe : prgtest.obj prgtest.res
+prgtest.obj : prgtest.cc prgtest.h
+prgtest.res : prgtest.rc
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

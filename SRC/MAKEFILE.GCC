@@ -1,0 +1,137 @@
+##########################################
+#    Developer Helper Object Set                                 #
+#  (C) 1994-95 Thomas E. Bednarz, Jr.                         #
+#     All rights reserved                                          #
+##########################################
+
+
+# $Id: makefile 1.7 1995/08/27 08:33:58 teb Exp $
+
+
+RM = del
+DHODIR = E:\DHO
+
+# uncomment the next 2 lines for the IBM CSet++
+# compiler2
+####################################################
+#CC=icc
+# uncomment the next 2 lines for a debug build
+#DEBUG=/Ti+ -DDEBUG
+#DBG=d
+#CFLAGS=/C+ /Q+ $(DEBUG) /Fi+ /I $(DHODIR) /Tp
+#AR=lib
+#JOIN=+
+#SUFFIX=icc
+
+# uncomment the next 2 lines for the GCC/2
+#  compiler
+#####################################################
+CC=gcc
+# uncomment the next 2 lines for a debug build
+DEBUG=-DDEBUG
+DBG=d
+CFLAGS=-c $(DEBUG) -I $(DHODIR)
+AR=glib
+JOIN=-a 
+SUFFIX=gcc
+
+# uncomment the next 2 lines for the EMX
+# compiler
+#####################################################
+CC=gcc 
+# uncomment the next 2 lines for a debug build
+#DEBUG=-DDEBUG
+#DBG=d
+CFLAGS=-c $(DEBUG) -I $(DHODIR) -Zomf
+AR= emxomfar q
+JOIN=
+SUFFIX=emx
+
+LIBS=dho$(SUFFIX)$(DBG).lib
+
+
+OBJS= applicat.obj mainwin.obj vset.obj window.obj moddlog.obj\
+	nmdlog.obj radiobtn.obj static.obj bmp_pbtn.obj \
+	listbox.obj notebk.obj contain.obj pmutils.obj mledtext.obj \
+	pushbtn.obj spinbtn.obj framewin.obj dtopwin.obj prgress.obj \
+	edittext.obj slider.obj control.obj winbase.obj thread.obj\
+	queue.obj stack.obj node.obj sortlist.obj list.obj process.obj\
+	object.obj baseutil.obj
+
+
+AR_OBJS= $(JOIN)applicat.obj $(JOIN)mainwin.obj $(JOIN)vset.obj\
+	$(JOIN)window.obj $(JOIN) moddlog.obj $(JOIN)nmdlog.obj\
+	$(JOIN)radiobtn.obj $(JOIN)static.obj $(JOIN)bmp_pbtn.obj\
+	$(JOIN)spinbtn.obj $(JOIN)framewin.obj $(JOIN)dtopwin.obj\
+	$(JOIN)listbox.obj $(join)notebk.obj $(JOIN)contain.obj\
+	$(JOIN)mledtext.obj $(JOIN)pmutils.obj $(JOIN)pushbtn.obj\
+	$(JOIN)prgress.obj $(JOIN)edittext.obj $(JOIN)slider.obj\
+	$(JOIN)control.obj $(JOIN)winbase.obj $(JOIN)queue.obj\
+	$(JOIN)stack.obj $(JOIN)node.obj $(JOIN)sortlist.obj\
+	$(JOIN)list.obj $(JOIN)thread.obj $(JOIN)process.obj\
+	$(JOIN)object.obj $(JOIN)baseutil.obj
+
+
+
+dho$(SUFFIX)$(DBG).lib: $(OBJS)
+	if exist dho$(SUFFIX)$(DBG).lib $(RM) dho$(SUFFIX)$(DBG).lib
+	$(AR) dho$(SUFFIX)$(DBG).lib $(AR_OBJS)
+
+
+clean:
+	$(RM) *.obj
+	$(RM) *.lib
+
+
+.SUFFIXES: .cc .obj .rc .res
+
+# inference rules
+#########################
+.cc.obj:
+	$(CC) $(CFLAGS) $<
+
+
+# dependancies
+###########################################
+applicat.obj : applicat.cc applicat.h process.h window.h object.h
+process.obj  : process.cc process.h object.h
+mainwin.obj  : mainwin.cc mainwin.h window.h winbase.h object.h
+mainwin.obj  : mainwin.cc mainwin.h window.h winbase.h object.h
+window.obj   : window.cc window.h process.h winbase.h object.h
+vset.obj     : vset.cc vset.h window.h winbase.h object.h
+moddlog.obj  : moddlog.cc moddlog.h window.h object.h
+nmdlog.obj   : nmdlog.cc nmdlog.h winbase.h object.h
+slider.obj   : slider.cc slider.h winbase.h control.h object.h
+edittext.obj : edittext.cc edittext.h winbase.h control.h object.h
+control.obj  : control.cc winbase.h control.h object.h
+winbase.obj  : winbase.cc winbase.h object.h
+sortlist.obj : list.cc sortlist.h sortlist.cc list.h object.h
+list.obj     : list.cc object.h
+queue.obj    : queue.cc queue.h node.h object.h
+stack.obj    : stack.cc stack.h node.h object.h
+node.obj     : node.cc node.h object.h
+object.obj   : object.cc object.h baseutil.h
+baseutil.obj : baseutil.cc baseutil.h
+radiobtn.obj : radiobtn.h radiobtn.cc control.h 
+spinbtn.obj: spinbtn.cc spinbtn.h winbase.h control.h object.h
+bmp_pbtn.obj: bmp_pbtn.cc bmp_pbtn.h winbase.h control.h object.h
+pushbtn.obj: pushbtn.cc pushbtn.h winbase.h control.h object.h
+static.obj : static.cc static.h control.h winbase.h
+listbox.obj : listbox.cc listbox.h 
+notebk.obj : notebk.cc notebk.h window.h winbase.h
+contain.obj : contain.cc contain.h window.h winbase.h
+pmutils.obj : pmutils.cc pmutils.h
+framewin.obj : framewin.cc framewin.h window.h
+dtopwin.obj : dtopwin.cc dtopwin.h winbase.h object.h
+thread.obj : thread.cc thread.h object.h
+prgress.obj : prgress.h prgress.cc window.h winbase.h object.h
+mledtext.obj : mledtext.h mledtext.cc control.h winbase.h
+
+
+
+
+
+
+
+
+

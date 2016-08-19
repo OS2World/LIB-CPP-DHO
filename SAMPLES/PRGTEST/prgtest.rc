@@ -1,0 +1,28 @@
+/* Developer Helper Object Set, (C) 1994 Thomas E. Bednarz, Jr.
+    All rights reserved */
+
+/* $Id: prgtest.rc 1.1 1995/08/13 04:51:52 teb Exp $    */
+
+
+#include<os2.h>
+#include"prgtest.h"
+
+DLGTEMPLATE ID_MAIN LOADONCALL MOVEABLE DISCARDABLE
+   BEGIN
+      DIALOG "Progress Meter Test", ID_MAIN, -11, 10, 170, 95, 0,
+         FCF_SYSMENU | FCF_TITLEBAR | FCF_MINBUTTON | FCF_TASKLIST
+      BEGIN
+         DEFPUSHBUTTON "Test Progress...", ID_PROGRESS,23, 38,
+            119, 14, WS_GROUP
+         PUSHBUTTON "Exit", ID_EXIT, 23, 12, 119, 14
+      END
+   END
+
+DLGTEMPLATE ID_DLGPROG LOADONCALL MOVEABLE DISCARDABLE
+   BEGIN
+      DIALOG "Progress...", ID_DLGPROG, 13, 14, 185, 80, 0,
+        FCF_SYSMENU | FCF_TITLEBAR
+      BEGIN
+         DEFPUSHBUTTON "Cancel", DID_CANCEL, 70, 9, 40, 14
+      END
+   END

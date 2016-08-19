@@ -1,0 +1,784 @@
+
+   Developer Helper Tutorial
+   -------------------------
+
+   This tutorial demonstrates the basic operations required to 
+begin to develop an application with the Developer Helper
+Application Framework.  While it is not a primer on OS/2 
+Presentation Manager programming, those who are familliar
+with C++, and with object oriented techniques should be 
+able to understand this tutorial, and possibly glean some
+OS/2 programming techniques.
+
+
+====================================================================
+Part 1: Creating a skeleton Application.
+
+   It's pretty simple to create the base for you application.  The
+following code will create an application, along with a main window.
+--------------------------------------------------------------------
+
+// example1.cc
+#include<applicat.h>
+
+
+#define kAppId 100
+
+
+//=========================================
+//  program entry point
+INT main(void)
+{
+   TApplication app(kAppId);
+
+   app.init();     // initialize object
+   app.run();      // begin event loop          
+
+   return 0;
+}
+
+
+--------------------------------------------------------------------
+
+   The main event loop creates an application object, which 
+in turn initializes itself and creates a main window in the
+member function init.  The event loop is then executed, and 
+proceeds untill the application is terminated.  Notice the
+parameter sent to the application obkect's constructor -- 
+it will be the resource id for all major resources in future
+examples.
+
+Note -- most objects in Developer Helper  have an initialization
+function along with a constructor.  The constructor will set up the
+object to a safe state, but the initializer will perform the actual
+memory allocations, etc.  The init function members all return 
+BOOL values -- TRUE upon object creation success, and FALSE upon failure.
+
+
+====================================================================
+Part 2:  Redefining the type of Main Window
+
+   Once the skeleton application is created, the next major step is to 
+customize the kind of main window the application creates.  The function
+TApplication::CreateMainWindow is called during application initialization
+and it is here where one can change the type of the window which is to be
+the application's main window.
+
+--------------------------------------------------------------------
+
+// example2.cc
+//   This example demonstrates how to customize
+//   an application object, specifically how to modify
+//   the type of main window for the application
+
+
+//DHO application object header file
+#include<applicat.h>
+#include<framewin.h>
+
+#define kAppId 100
+
+
+class TExampleApp : public TApplication
+{
+   public:
+      TExampleApp(ULONG res):TApplication(res){;};
+      virtual void CreateMainWindow()
+      {
+         MainWin=new TFrameWindow(fResource, "DHO Tutorial App");
+      }
+};
+
+
+
+//=========================================
+//  program entry point
+INT main(void)
+{
+   TExampleApp app(kAppId);
+
+   app.init();     // initialize object
+   app.run();      // begin event loop          
+
+   return 0;
+}
+
+--------------------------------------------------------------------
+
+   The only difference in this example from the default inirialization
+is in the name of the main window.  However, in the next example we will
+redefine the main window's default behavior, further customizing the 
+application
+
+
+====================================================================
+Part 3: Redefining Window Behavior
+
+   By automating the window registration procedures required by
+the OS/2 Presentation Manager, the Developer Helper framework
+makes it easy to define window behaviors.  The following example
+demonstrates some simple customization by having the main window
+include a frame window icon in the system menu.
+
+--------------------------------------------------------------------
+
+
+class TExampleFrameWin : public TFrameWindow
+{
+
+   public:
+      TExampleFrameWin(ULONG id, char *title):TFrameWindow(id, title)
+      {   fShellPos = TRUE;};
+      virtual BOOL init()
+      {
+         if (TFrameWindow::init())
+         {   // add a frame icon
+            this->setIcon(WinQuerySysPointer(HWND_DESKTOP, 
+                    SPTR_ICONINFORMATION, FALSE));
+            return TRUE;
+         }
+         return FALSE;
+      }
+};
+
+
+
+class TExampleApp : public TApplication
+{
+   public:
+      TExampleApp(ULONG res):TApplication(res){;};
+      virtual void CreateMainWindow()
+      {
+         MainWin=new TExampleFrameWin(fResource, "DHO Tutorial App");
+      }
+};
+
+--------------------------------------------------------------------
+
+   The sample application now has a main window which is starting to
+define it's own appearance and behaviors.
+
+
+====================================================================
+Part4:  Adding a client window to a frame window
+
+   In the Developer Helper Application framework, the class function
+members for windows which begin with the word do are called in response
+to a message from the OS/2 Presentation Manager.  For example, the doSize
+function of the class TWindow will be called as a direct result of the
+window receiving a WM_SIZE message from PM.  It is easy to define 
+window behavior in response to these operating system messages.  In the
+next example, we add a client window to our main window which defines
+behavior in response to the WM_SIZE and WM_PAINT messages.
+
+
+--------------------------------------------------------------------
+
+
+
+class TExampleClientWin : public TWindow
+{
+      SHORT sPageX, sPageY;
+   public:
+      TExampleClientWin(ULONG id, TWinBase *parent):TWindow(id, parent){;};
+      virtual void doSize(WinMsg wm)
+      {
+         sPageX = SHORT1FROMMP(wm.mp2);
+         sPageY = SHORT2FROMMP(wm.mp2);
+      }
+      virtual void paintWindow(HPS ps, RECTL rcl)
+      {
+         POINTL ptl;
+         SHORT w;
+
+         if ((sPageX == 0) && (sPageY == 0))         
+         {
+            sPageX = rcl.xRight - rcl.xLeft;
+            sPageY = rcl.yTop - rcl.yBottom; 
+         }
+
+         if (sPageX > sPageY)
+            w = sPageY / 2;
+         else
+            w = sPageX / 2;         
+
+         WinFillRect(ps, &rcl, CLR_BLUE);
+
+         rcl.xLeft = (sPageX/2) -(w/2);
+         rcl.xRight = rcl.xLeft +w;
+         rcl.yBottom = (sPageY /2) -(w/2);
+         rcl.yTop = rcl.yBottom+w;
+
+         WinFillRect(ps, &rcl, CLR_YELLOW);
+         
+      }
+};
+
+
+
+
+class TExampleFrameWin : public TFrameWindow
+{
+
+   public:
+      TExampleFrameWin(ULONG id, char *title):TFrameWindow(id, title)
+      {   fShellPos = TRUE;};
+      virtual BOOL init()
+      {
+         if (TFrameWindow::init())
+         {   // add a frame icon
+            this->setIcon(WinQuerySysPointer(HWND_DESKTOP, 
+                    SPTR_ICONINFORMATION, FALSE));
+
+            TExampleClientWin *client = new
+                TExampleClientWin(FID_CLIENT, this);
+            return client->init();
+         }
+         return FALSE;
+      }
+};
+
+
+
+--------------------------------------------------------------------
+
+   The example program now has a more complex, as well as a more
+colorful main window.  One minor note to mention here -- the
+function TWindow::paintWindow is called by the function 
+TWindow::doPaint.  This is becase of some preliminary behavior 
+that the class TWindow performs to alleviate some tediousness
+of drawing in windows.  For those who are more interested, 
+examine the source code for the function TWindow::doPaint 
+in the DHO source code file window.cc
+
+
+====================================================================
+Part 5:  Adding a menu to the frame window
+
+   
+   The TFrameWindow class has an attribute structure which is
+used in the init member to set various features of the window.
+Various fields of this structure can be modified at any point
+from the object's creation untill the initialization of the
+OS/2 window in the init call, and these changes will manifest
+themselves in the appearance and behavior of the window.
+
+   For example, by setting the field menu of the fFrAttr member
+of the class TFrameWindow, the init function will attempt to 
+load and bind a menu resource to the menu.  In this example,
+our sample application will load a memu resource which is defined
+in the file example5.rc
+
+
+--------------------------------------------------------------------
+
+// example5.cc
+
+class TExampleFrameWin : public TFrameWindow
+{
+
+   public:
+      TExampleFrameWin(ULONG id, char *title):TFrameWindow(id, title)
+      {   
+         fShellPos = TRUE;
+         fFrAttr.menu = TRUE;
+      };
+
+};
+
+
+
+/* example5.rc */
+#include<os2.h>
+
+MENU 100
+BEGIN
+   SUBMENU "~File", 101
+      BEGIN
+         MENUITEM "Change Colors", 102
+         MENUITEM "", 5, MIS_SEPARATOR         
+         MENUITEM  "E~xit", 103
+      END
+   SUBMENU "~Help", 201
+      BEGIN
+         MENUITEM "Product Information", 104
+      END
+END
+
+
+--------------------------------------------------------------------
+
+   Other behaviors which can be modified in this way are:
+
+   TFrameWindowAttr field                 Behavior
+   -----------------------             ---------------
+   BOOL titlebar			TRUE  -- has titlebar *
+                                        FALSE -- no titlebar
+
+   BOOL sysmenu                         TRUE  -- has system menu *
+                                        FALSE -- no system menu
+
+   BOOL menu                            TRUE  -- Load menu
+                                        FALSE -- do not load menu *
+
+   BOOL icon                            TRUE  -- Load icon
+                                        FLASE -- Do not load icon *
+
+   BOOL minbutton                       TRUE  -- has min button *
+                                        FALSE -- no min button
+
+   BOOL maxbutton                       TRUE  -- has max button *
+                                        FLASE -- no max button
+
+   BOOL sizeborder                      TRUE  -- has a size border *
+                                        FALSE -- no size border
+
+   BOOL tasklist                        TRUE  -- included in task list 
+                                        FLASE -- not included in task list *
+
+   BOOL vscroll                         TRUE  -- include vertical scroll 
+                                        FALSE -- no vertical scroll bar *
+
+   BOOL hscroll                         TRUE  -- include horizontal scroll 
+                                        FALSE -- no horizontal scroll bar *
+
+   BOOL acceltable                      TRUE  -- load accelerator table
+                                        FALSE -- no accelerator table  *
+
+   BOOL shellPos                        TRUE  -- shell positions window *
+                                        FALSE -- window positions self
+
+   ULONG x                              initial x axis position
+                                        DEFAULT -- 0
+
+   ULONG y                              initial y axis position
+                                        DEFAULT -- 0
+
+   ULONG width                          initial width
+                                        DEFAULT -- 0
+
+   ULONG height                         initial height
+                                        DEFAULT -- 0
+
+        * denotes the default for the class TFrameWindow
+
+
+
+====================================================================
+Part 6: Responding to Command Events
+
+   In the OS/2 presentation managers, messages from various controls
+(such as menus and push buttons) are sent to a window in the form 
+of a WM_COMMAND message.  In Developer Helper, the doCommand function
+is called in reponse to a WM_COMMAND message, and it is here where most
+of the functionality of an application is fleshed out.
+
+   In this next example, we will override TExampleFrameWin's member
+doCommand to provide functionality for each of the selections in
+the frame window's menu.
+
+
+--------------------------------------------------------------------
+// example6.cc
+
+
+class TExampleFrameWin : public TFrameWindow
+{
+ // various members
+
+   virtual void doCommand(WinMsg wm)
+   {
+      SHORT command = SHORT1FROMMP(wm.mp1);
+      if (command == 103)
+      {
+         WinPostMsg(wm.hwnd, WM_QUIT, 0,0);
+      }
+      else if (command == 104)
+      {
+         WinMessageBox(HWND_DESKTOP, hwnd, (PSZ)aboutText, 
+                (PSZ)"Product Information", 0, MB_MOVEABLE | MB_OK 
+                | MB_ICONEXCLAMATION);
+      }
+   }
+
+ // more various members
+};
+
+
+--------------------------------------------------------------------
+
+
+   The macro SHORT1FROMMP is called a 'cracker' macro, and is 
+supplied in os2.h.  In this case, it is used to extract the 
+command id from the message structure.  
+
+
+
+====================================================================
+Part 7:  introduction To Dialogs
+
+
+   There are two types of dialog boxes in the OS/2 Presentation
+Manager -- Modal Dialogs and Non-Modal Dialogs.  Modal dialogs
+seize the applications focus, and retain it untill they are
+dismissed.   Non-modal dialogs can gain and loose the applications
+focus much like normal windows do.  
+
+   In this example, we will be addding a modal dialog to our
+example program.  The DHO class which handles the modal dialog
+is called TNonModalDialog, and is created and initialized much
+like a normal window.  However, a dialog will not be displayed
+until the member function TModalDialof::Execute is called.  
+
+
+--------------------------------------------------------------------
+// example7.cc
+
+
+class TColorSelectDlog : public TModalDialog
+{
+      TValueSet *fBkgndColors, *fShapeColors;
+   public:
+      TColorSelectDlog(ULONG resource, TWinBase *owner, void *buffer):
+         TModalDialog(resource, owner, buffer){;};
+      virtual BOOL init()
+      {
+         ULONG index, i, j;
+         if (TModalDialog::init())
+         {
+            fBkgndColors=new TValueSet(201, this);
+            fShapeColors=new TValueSet(202, this);
+            index = 1;
+            j=1;
+            for (i=1; i<4; i++)
+            {
+               for (j=1; j<6; j++)
+               {
+                  fBkgndColors->setItem(i,j,(VOID*)index);
+                  fShapeColors->setItem(i,j,(VOID*)index);
+                  index++;
+               }
+            }
+            return TRUE;
+         }
+         return FALSE;
+      }
+};
+
+
+
+
+class TExampleFrameWin : public TFrameWindow
+{
+
+   public:
+      TExampleFrameWin(ULONG id, char *title):TFrameWindow(id, title)
+      {   
+         fShellPos = TRUE;
+         fFrAttr.menu = TRUE;
+         fFrAttr.icon = TRUE;
+      };
+      virtual BOOL init()
+      {
+         if (TFrameWindow::init())
+         {  
+            TExampleClientWin *client = new
+                TExampleClientWin(FID_CLIENT, this);
+            return client->init();
+         }
+         return FALSE;
+      }
+      virtual void doCommand(WinMsg wm)
+      {
+         SHORT command = SHORT1FROMMP(wm.mp1);
+         if (command == 102)
+         {
+             TColorSelectDlog dlog(200, this, NULL);
+             dlog.init();
+             dlog.Execute();
+         }
+         if (command == 103)
+         {
+            WinPostMsg(wm.hwnd, WM_QUIT, 0,0);
+         }
+         else if (command == 104)
+         {
+            WinMessageBox(HWND_DESKTOP, hwnd, (PSZ)aboutText, 
+                   (PSZ)"Product Information", 0, MB_MOVEABLE | MB_OK 
+                   | MB_ICONEXCLAMATION);
+         }
+      }
+};
+
+
+--------------------------------------------------------------------
+
+   This example, in addition to creating a modal dialog also creates
+two Value Set controls.  The resource code to create this dialog 
+follows:
+
+--------------------------------------------------------------------
+/* example7.rc */
+
+
+DLGTEMPLATE 200 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+   DIALOG "Window Colors", 200, 30,10, 150, 125, WS_VISIBLE, 
+           FCF_TITLEBAR 
+      BEGIN
+        LTEXT "Background Colors", 203, 3, 114, 80, 8
+        CONTROL "", 201, 10, 73, 130, 40, WC_VALUESET,
+                 VS_COLORINDEX | VS_BORDER | VS_ITEMBORDER |
+                 WS_TABSTOP | WS_VISIBLE
+         CTLDATA         8, 0, 3, 5
+        LTEXT "Shape Colors", 204, 3, 65, 80, 8
+        CONTROL "", 202, 10, 25, 130, 40, WC_VALUESET,
+                 VS_COLORINDEX | VS_BORDER | VS_ITEMBORDER |
+                 WS_TABSTOP | WS_VISIBLE
+         CTLDATA         8, 0, 3, 5
+         PUSHBUTTON    "Cancel", DID_CANCEL, 34, 3, 55, 15
+         DEFPUSHBUTTON "OK", DID_OK, 92, 3, 55, 15
+      END
+END
+
+--------------------------------------------------------------------
+
+   Notice the code in TExampleFrameWin::doCommand which actually
+creates and executes the dialog -- only 3 lines of code are required
+to perform this operation.
+
+
+
+====================================================================
+Part 8: Finishing Touches
+
+   Now, all that is left to do in order to finish this demo
+application is to initialize the value set objects in the 
+color select dialog class and to change the Frame Window's
+client window's colors according to the inputs in these
+value sets.  
+
+   The final code for the application is:
+
+--------------------------------------------------------------------
+
+/****************************************/
+/*    Developer Helper Object Set       */
+/*  (C) 1994-95 Thomas E. Bednarz, Jr.  */
+/*     All rights reserved              */
+/***************************************/
+
+/* $Id: tutorial.txt 1.1 1995/09/03 00:49:18 teb Exp $ */
+
+/*******************************************
+ *   Example8.cc 
+ * 
+ *******************************************/
+
+#define INCL_WIN
+#include<os2.h>
+
+//DHO application object header file
+#include<applicat.h>
+#include<framewin.h>
+#include<moddlog.h>
+#include<vset.h>
+
+#define kAppId 100
+#define aboutText "Developer Helper Sample App\n (c) 1994-95 Tom Bednarz\n     All Rights Reserved."
+
+
+
+
+class TColorSelectDlog : public TModalDialog
+{
+      TValueSet *fBkgndColors, *fShapeColors;
+   public:
+      TColorSelectDlog(ULONG resource, TWinBase *owner, void *buffer)
+         TModalDialog(resource, owner, buffer){;};
+      virtual~TColorSelectDlog()
+      {
+         if(fBkgndColors)
+            delete fBkgndColors;
+         if(fShapeColors)
+            delete fShapeColors;
+      }
+      virtual BOOL init()
+      {
+         ULONG index, i, j;
+         if (TModalDialog::init())
+         {
+            fBkgndColors=new TValueSet(201, this);
+            fShapeColors=new TValueSet(202, this);
+            index = 1;
+            j=1;
+            for (i=1; i<4; i++)
+            {
+               for (j=1; j<6; j++)
+               {
+                  fBkgndColors->setItem(i,j,(VOID*)index);
+                  fShapeColors->setItem(i,j,(VOID*)index);
+                  index++;                   
+              }
+            }
+            return TRUE;
+         }
+         return FALSE;
+      }
+      virtual void doControl(WinMsg wm)
+      { 
+         if (SHORT2FROMMP(wm.mp1) == VN_SELECT)
+         {
+            USHORT i,j;
+            fBkgndColors->getSelection(i,j);
+            fBackground=((i-1)*5)+j;
+            fShapeColors->getSelection(i,j);
+            fShape=((i-1)*5)+j;  
+         }
+         else
+            TModalDialog::doControl(wm);
+               
+      }
+      void getColors(ULONG &bgnd, ULONG &shape)
+      {
+         bgnd = fBackground;
+         shape = fShape;
+      }
+};
+
+
+
+
+class TExampleClientWin : public TWindow
+{
+      SHORT sPageX, sPageY;
+      ULONG fBkgColor, fShapeColor;
+   public:
+      TExampleClientWin(ULONG id, TWinBase *parent):TWindow(id, parent)
+      {
+        fBkgColor = CLR_BLUE;
+        fShapeColor = CLR_YELLOW;
+      };
+      virtual void doSize(WinMsg wm)
+      {
+         sPageX = SHORT1FROMMP(wm.mp2);
+         sPageY = SHORT2FROMMP(wm.mp2);
+      }
+      virtual void paintWindow(HPS ps, RECTL rcl)
+      {
+         POINTL ptl;
+         SHORT w;
+
+         if ((sPageX == 0) && (sPageY == 0))         
+         {
+            sPageX = rcl.xRight - rcl.xLeft;
+            sPageY = rcl.yTop - rcl.yBottom; 
+         }
+
+         if (sPageX > sPageY)
+            w = sPageY / 2;
+         else
+            w = sPageX / 2;         
+
+         WinFillRect(ps, &rcl, fBkgColor);
+
+         rcl.xLeft = (sPageX/2) -(w/2);
+         rcl.xRight = rcl.xLeft +w;
+         rcl.yBottom = (sPageY /2) -(w/2);
+         rcl.yTop = rcl.yBottom+w;
+
+         WinFillRect(ps, &rcl, fShapeColor);
+      }
+      void setColors(ULONG bgnd, ULONG shape)
+      {
+          fBkgColor = bgnd;
+          fShapeColor = shape;
+      }
+      void getColors(ULONG &bgnd, ULONG &shape)
+      {
+          bgnd = fBkgColor;
+          shape = fShapeColor;
+      }
+};
+
+
+
+class TExampleFrameWin : public TFrameWindow
+{
+     TExampleClientWin *client;
+   public:
+      TExampleFrameWin(ULONG id, char *title):TFrameWindow(id, title)
+      {   
+         fShellPos = TRUE;
+         fFrAttr.menu = TRUE;
+         fFrAttr.icon = TRUE;
+      };
+      virtual BOOL init()
+      {
+         if (TFrameWindow::init())
+         {   
+            client = new TExampleClientWin(FID_CLIENT, this);
+            return client->init();
+         }
+         return FALSE;
+      }
+      virtual void doCommand(WinMsg wm)
+      {
+         SHORT command = SHORT1FROMMP(wm.mp1);
+         if (command == 102)
+         {
+             TColorSelectDlog dlog(200, this, NULL, 1, 1);
+             dlog.init();
+             if (dlog.Execute() == MBID_OK)
+             {
+                ULONG i,j;
+                dlog.getColors(i,j);
+                client->setColors(i,j);
+                client->forceUpdate();
+             }
+         }
+         if (command == 103)
+         {
+            WinPostMsg(wm.hwnd, WM_QUIT, 0,0);
+         }
+         else if (command == 104)
+         {
+            WinMessageBox(HWND_DESKTOP, hwnd, (PSZ)aboutText, 
+                   (PSZ)"Product Information", 0, MB_MOVEABLE | MB_OK 
+                   | MB_ICONEXCLAMATION);
+         }
+      }
+};
+
+
+class TExampleApp : public TApplication
+{
+   public:
+      TExampleApp(ULONG res):TApplication(res){;};
+      virtual void CreateMainWindow()
+      {
+         MainWin=new TExampleFrameWin(fResource, "DHO Tutorial App");
+      }
+};
+
+
+
+//=========================================
+//  program entry point
+INT main(void)
+{
+   TExampleApp app(kAppId);
+
+   app.init();     // initialize object
+   app.run();      // begin event loop          
+
+   return 0;
+}
+
+
+
+--------------------------------------------------------------------
+
+   
+
+

@@ -1,0 +1,77 @@
+/* Developer Helper Object Set, (C) 1994 Thomas E. Bednarz, Jr.
+    All rights reserved */
+
+/* $Id: nbktest.rc 1.1 1995/08/13 04:57:18 teb Exp $    */
+
+#include<os2.h>
+#include"nbktest.h"
+
+
+DLGTEMPLATE 200 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+   DIALOG "Notebook Properties", 200, 30,10, 150, 125, WS_VISIBLE, 
+           FCF_TITLEBAR 
+      BEGIN
+         GROUPBOX  "Binding Style", 101, 25, 84, 98, 38         
+         AUTORADIOBUTTON   "Spiral Binding", kSpBbtn, 30, 102, 90, 10, 
+                        WS_GROUP
+         AUTORADIOBUTTON   "Solid Binding", kSpBbtn+1, 30, 90, 90, 10
+
+         GROUPBOX  "Page Intersection", 101, 25, 28, 98, 50        
+         AUTORADIOBUTTON   "Right", kSoBtn, 30, 60, 90, 10, 
+                        WS_GROUP
+         AUTORADIOBUTTON   "Bottom", kSoBtn+1, 30, 50, 90, 10
+         AUTORADIOBUTTON   "Top", kSoBtn+2, 30, 40, 90, 10
+         AUTORADIOBUTTON   "Left", kSoBtn+3, 30, 30, 90, 10
+         DEFPUSHBUTTON "OK", DID_OK, 43, 3, 55, 15
+      END
+   END
+
+
+DLGTEMPLATE 300 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+   DIALOG "Page Properties", 300, 55, 30, 170, 116, WS_VISIBLE, 
+           FCF_TITLEBAR 
+      BEGIN
+         GROUPBOX  "Tab Style", 301, 45, 71, 80, 40         
+         AUTORADIOBUTTON   "No Tab", kTabBtn, 57, 93, 54, 10, 
+                        WS_GROUP
+         AUTORADIOBUTTON   "Major Tab", kTabBtn+1, 57, 83, 54, 10, 
+         AUTORADIOBUTTON   "Minor Tab", kTabBtn+2, 57, 73, 54, 10, 
+ 	 LTEXT "Enter Tab Text", 308, 17, 58, 80, 8
+ 	 LTEXT "Enter Status Line Text", 309, 17, 33, 80, 8
+         ENTRYFIELD "", kEditText, 24, 43, 115, 10,
+	    ES_MARGIN | ES_AUTOSCROLL      
+         ENTRYFIELD "", kEditText+1, 24, 21, 115, 10,
+	    ES_MARGIN | ES_AUTOSCROLL      
+         PUSHBUTTON    "Cancel", DID_CANCEL, 34, 3, 55, 15
+         DEFPUSHBUTTON "OK", DID_OK, 92, 3, 55, 15
+      END
+END
+
+MENU appres
+BEGIN
+   SUBMENU "~File", fileMenu
+      BEGIN
+         MENUITEM  "E~xit", kQuit 
+      END
+   SUBMENU "~Pages", pageMenu
+      BEGIN
+         MENUITEM "Add Page ~First", cAddPageFirst
+         MENUITEM "Add Page ~Last", cAddPageLast
+         MENUITEM "", 5, MIS_SEPARATOR         
+         MENUITEM "~Remove First Page", cRemovePageFirst
+         MENUITEM "Remove Last ~Page", cRemovePageLast
+      END
+   SUBMENU "~Help", helpMenu
+      BEGIN
+         MENUITEM  "~Product Information", cProductInfo
+      END
+
+END
+
+
+
+
+
+

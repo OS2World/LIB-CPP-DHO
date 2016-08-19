@@ -1,0 +1,30 @@
+#include<os2.h>
+#include"conttest.h"
+
+MENU ID_POPUPMENU 
+BEGIN
+   MENUITEM "Icon View", IDM_ICONVIEW
+   SUBMENU "Name View", IDM_NAME
+   BEGIN
+      MENUITEM "Flowed", IDM_NAME_FLOWED
+      MENUITEM "Non-FLowed", IDM_NAME_NONFLOWED
+   END
+   SUBMENU "Text View", IDM_TEXT
+   BEGIN
+       MENUITEM "Flowed", IDM_TEXT_FLOWED
+       MENUITEM "Non-Flowed", IDM_TEXT_NONFLOWED
+   END
+   MENUITEM "", IDM_SEP, MIS_SEPARATOR
+   MENUITEM "Add Items", IDM_ADDITEMS
+   SUBMENU "Delete Items", IDM_DELETE
+   BEGIN
+       MENUITEM "Delete First", IDM_DELETE1
+       MENUITEM "Delete Second", IDM_DELETE2
+       MENUITEM "Delete Third", IDM_DELETE3
+       MENUITEM "Delete All", IDM_DELETEALL
+   END
+   MENUITEM "", IDM_SEP, MIS_SEPARATOR
+   MENUITEM "Product Information", IDM_PRODINFO
+   MENUITEM "Quit", IDM_QUIT
+
+END

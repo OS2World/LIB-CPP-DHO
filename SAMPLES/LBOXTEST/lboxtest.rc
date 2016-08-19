@@ -1,0 +1,95 @@
+/* Developer Helper Object Set, (C) 1994 Thomas E. Bednarz, Jr.
+    All rights reserved */
+
+/* $Id: lboxtest.rc 1.2 1995/08/29 19:13:38 teb Exp $    */
+
+#include<os2.h>
+#include "lboxtest.h"
+
+
+DLGTEMPLATE 100 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+   DIALOG "List Box Tester", 100, 0, 0, 178, 186, WS_VISIBLE, 
+           FCF_TITLEBAR | FCF_SYSMENU
+      BEGIN
+         LISTBOX    kListBox, 20, 68, 136, 106 
+         PUSHBUTTON "Add Item", 102, 9, 41, 62, 14
+         PUSHBUTTON "Remove Item", 103, 98, 41, 62, 14
+         PUSHBUTTON "Remove All", 104, 9, 25, 62, 14
+         PUSHBUTTON "Change Item", 105, 99, 25, 62, 14
+         PUSHBUTTON "Quit", 106, 51, 4, 62, 14
+      END
+END      
+
+
+DLGTEMPLATE 200 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+   DIALOG "Add Item", 200, 48, 28, 148, 64, WS_VISIBLE, 
+           FCF_TITLEBAR | FCF_SYSMENU
+      BEGIN
+         LTEXT "Enter Item", 202, 14, 52, 57, 8
+         ENTRYFIELD "", 201, 8, 23, 129, 11, 
+	    ES_MARGIN | ES_AUTOSCROLL      
+         DEFPUSHBUTTON "OK", DID_OK, 42, 5, 40, 14
+         PUSHBUTTON "Cancel", DID_CANCEL, 94, 5, 40, 14
+      END
+END
+
+DLGTEMPLATE 300 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+   DIALOG "List Control Type", 300, 41, 28, 165, 85, WS_VISIBLE, 
+           FCF_TITLEBAR | FCF_SYSMENU
+      BEGIN
+         GROUPBOX "List Box Type", 301, 21, 28, 108, 49
+         AUTORADIOBUTTON "List Box", 302, 35, 57, 85, 10, WS_GROUP
+         AUTORADIOBUTTON "Combo Box", 303, 35, 44, 85, 10
+         AUTORADIOBUTTON "Pull-Down", 304, 35, 32, 85, 10
+         DEFPUSHBUTTON "OK", DID_OK, 42, 5, 40, 14
+         PUSHBUTTON "Cancel", DID_CANCEL, 94, 5, 40, 14
+     END
+END
+
+
+DLGTEMPLATE kChangeDlog LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+   DIALOG "Change Item", 400, 50, 13, 148, 64, WS_VISIBLE, 
+           FCF_TITLEBAR | FCF_SYSMENU
+      BEGIN
+         LTEXT "Original Value", 404, 8, 54, 121, 8
+         LTEXT "Text", kchngStaticText, 11, 45, 121, 8
+         LTEXT "Enter New Text", 402, 10, 34, 82, 8 
+         ENTRYFIELD "", kchngEditText, 10, 22, 125, 12,
+	    ES_MARGIN | ES_AUTOSCROLL      
+         DEFPUSHBUTTON "OK", DID_OK, 42, 5, 40, 14
+         PUSHBUTTON "Cancel", DID_CANCEL, 94, 5, 40, 14
+   END
+END       
+
+DLGTEMPLATE 500 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+   DIALOG "List Box Tester", 500, 20, 10, 178, 86, WS_VISIBLE, 
+           FCF_TITLEBAR | FCF_SYSMENU
+      BEGIN
+         COMBOBOX   "",  kListBox, 24, 42, 128, 35, CBS_DROPDOWN
+         PUSHBUTTON "Add Item", cAddItem, 9, 41, 62, 14
+         PUSHBUTTON "Remove Item", cRemoveItem, 98, 41, 62, 14
+         PUSHBUTTON "Remove All", cRemoveAll, 9, 25, 62, 14
+         PUSHBUTTON "Change Item", cRenameItem, 99, 25, 62, 14
+         PUSHBUTTON "Quit", cQuit, 51, 4, 62, 14
+      END
+END      
+
+
+DLGTEMPLATE 600 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+   DIALOG "List Box Tester", 600, 20, 10, 178, 86, WS_VISIBLE, 
+           FCF_TITLEBAR | FCF_SYSMENU
+      BEGIN
+         COMBOBOX   "",  kListBox, 24, 42, 128, 35, CBS_DROPDOWNLIST
+         PUSHBUTTON "Add Item", cAddItem, 9, 41, 62, 14
+         PUSHBUTTON "Remove Item", cRemoveItem, 98, 41, 62, 14
+         PUSHBUTTON "Remove All", cRemoveAll, 9, 25, 62, 14
+         PUSHBUTTON "Change Item", cRenameItem, 99, 25, 62, 14
+         PUSHBUTTON "Quit", cQuit, 51, 4, 62, 14
+      END
+END      

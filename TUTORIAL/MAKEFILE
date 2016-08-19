@@ -1,0 +1,107 @@
+##########################################
+#    Developer Helper Object Set                                 #
+#  (C) 1994-95 Thomas E. Bednarz, Jr.                         #
+#     All rights reserved                                          #
+##########################################
+
+
+# $Id: makefile 1.4 1995/09/03 00:39:15 teb Exp $
+
+RM = del
+DHODIR = E:\DHO
+
+# uncomment the next 2 lines for the IBM CSet++
+# compiler2
+####################################################
+CC=icc
+# uncomment the next 2 lines for a debug build
+DEBUG=/Ti+ -DDEBUG
+DBG=d
+CFLAGS=/C+ /Q+ /Ti+ /Fi+ /I $(DHODIR) /Tp
+EXECFLAGS=/Q+ /Ti+
+SUFFIX=icc
+OUT= /Fe
+
+# uncomment the next 2 lines for the GCC/2
+#  compiler
+#####################################################
+#CC=gcc
+# uncomment the next 2 lines for a debug build
+#DEBUG=-DDEBUG
+#DBG=d
+#CFLAGS=$(DEBUG) -c -I $(DHODIR)
+#OUT=-o
+
+# uncomment the next 2 lines for the EMX
+# compiler
+#####################################################
+#CC=gcc 
+# uncomment the next 2 lines for a debug build
+#DEBUG=-DDEBUG
+#DBG=d
+#CFLAGS=$(DEBUG) -c -I $(DHODIR) -Zomf
+#EXECFLAGS= -I $(DHODIR) -Zomf
+#OUT=-o
+
+
+LIBS=$(DHODIR)\dho$(SUFFIX)$(DBG).lib
+
+ALL: example1.exe example2.exe example3.exe example4.exe example5.exe\
+	example6.exe example7.exe example8.exe
+
+clean:
+        del *.obj
+        del *.exe
+        del *.res
+
+
+
+
+.SUFFIXES: .cc .obj .rc .res .exe
+
+# inference rules
+#########################
+.cc.obj:
+	$(CC) $(CFLAGS) $<
+
+
+.rc.res:
+	RC -r $<
+
+.obj.exe:
+	$(CC) $(EXECFLAGS) $*.obj $(LIBS) example.def $(OUT) $*.exe
+	rc $*.res
+
+
+
+example1.exe : example1.obj example1.res
+example1.res : example1.rc
+example1.obj : example1.cc
+example2.exe : example2.obj example2.res
+example2.obj : example2.cc
+example2.res : example2.rc
+example3.exe : example3.obj example3.res
+example3.obj : example3.cc
+example3.res : example3.rc
+example4.exe : example4.obj example4.res
+example4.obj : example4.cc
+example4.res : example4.rc
+example5.exe : example5.obj example5.res
+example5.obj : example5.cc
+example5.res : example5.rc
+example6.exe : example6.obj example6.res
+example6.obj : example6.cc
+example6.res : example6.rc
+example7.exe : example7.obj example7.res
+example7.obj : example7.cc
+example7.res : example7.rc
+example8.exe : example8.obj example8.res
+example8.obj : example8.cc
+example8.res : example8.rc
+
+
+
+
+
+
+

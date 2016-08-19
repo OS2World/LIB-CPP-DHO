@@ -1,0 +1,39 @@
+#include<os2.h>
+
+ICON 100 dho.ico
+
+MENU 100
+BEGIN
+   SUBMENU "~File", 101
+      BEGIN
+         MENUITEM "Change Colors", 102
+         MENUITEM "", 5, MIS_SEPARATOR         
+         MENUITEM  "E~xit", 103
+      END
+   SUBMENU "~Help", 201
+      BEGIN
+         MENUITEM "Product Information", 104
+      END
+END
+
+
+DLGTEMPLATE 200 LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+   DIALOG "Window Colors", 200, 30,10, 150, 125, WS_VISIBLE, 
+           FCF_TITLEBAR 
+      BEGIN
+        LTEXT "Background Colors", 203, 3, 114, 80, 8
+        CONTROL "", 201, 10, 73, 130, 40, WC_VALUESET,
+                 VS_COLORINDEX | VS_BORDER | VS_ITEMBORDER |
+                 WS_TABSTOP | WS_VISIBLE
+         CTLDATA         8, 0, 3, 5
+        LTEXT "Shape Colors", 204, 3, 65, 80, 8
+        CONTROL "", 202, 10, 25, 130, 40, WC_VALUESET,
+                 VS_COLORINDEX | VS_BORDER | VS_ITEMBORDER |
+                 WS_TABSTOP | WS_VISIBLE
+         CTLDATA         8, 0, 3, 5
+         PUSHBUTTON    "Cancel", DID_CANCEL, 34, 3, 55, 15
+         DEFPUSHBUTTON "OK", DID_OK, 92, 3, 55, 15
+      END
+END
+
